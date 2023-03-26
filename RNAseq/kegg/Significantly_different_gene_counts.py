@@ -15,6 +15,9 @@ def main():
     os.chdir(pwd)
     
     LV2_dic = {}
+    # 文件来自 https://www.genome.jp/kegg-bin/get_htext?ko00001
+    # https://www.genome.jp/kegg-bin/get_htext?rno00001
+    # 点击Download htext  下载keg文件
     with open(name+"00001.keg",mode='rt',encoding='utf-8') as fh:
         class_type = ""
         for line in fh:
