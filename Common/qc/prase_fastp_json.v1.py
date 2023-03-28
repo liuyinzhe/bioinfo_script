@@ -114,10 +114,10 @@ def parse_fastp_json(sample,fastp_json):
     before_total_bases = int(fastp_dict['summary']['before_filtering']['total_bases'])
     after_total_reads = int(fastp_dict['summary']['after_filtering']['total_reads'])
     after_total_bases = int(fastp_dict['summary']['after_filtering']['total_bases'])
-    summary_tab_lst = [sample,str(convertSizeUnit(before_total_reads, source='B', target='MB', return_unit=False)), 
-                     str(convertSizeUnit(before_total_bases, source='B', target='GB', return_unit=False)), 
-                     str(convertSizeUnit(after_total_reads, source='B', target='MB', return_unit=False)),
-                     str(convertSizeUnit(after_total_bases, source='B', target='GB', return_unit=False)),
+    summary_tab_lst = [sample,"{:.2f}%".format(convertSizeUnit(before_total_reads, source='B', target='MB', return_unit=False)), 
+                     "{:.2f}%".format(convertSizeUnit(before_total_bases, source='B', target='GB', return_unit=False)), 
+                     "{:.2f}%".format(convertSizeUnit(after_total_reads, source='B', target='MB', return_unit=False)),
+                     "{:.2f}%".format(convertSizeUnit(after_total_bases, source='B', target='GB', return_unit=False)),
                      "{:.2f}%".format(int(fastp_dict['summary']['after_filtering']['total_bases'])/int(fastp_dict['summary']['before_filtering']['total_bases'])*100),
                      "{:.2f}%".format(float(fastp_dict['summary']['after_filtering']['q30_rate'])*100),
                      "{:.2f}%".format(float(fastp_dict['summary']['after_filtering']['gc_content'])*100)
