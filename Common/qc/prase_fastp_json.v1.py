@@ -98,7 +98,7 @@ def parse_fastp_json(sample,fastp_json):
 	},
     '''
     # fastp 内容表头
-    summary_target_lst = ['total_reads', 'total_bases', 'q20_bases', 'q30_bases', 'q20_rate', 'q30_rate',  'gc_content']
+    summary_target_lst = ['total_reads', 'total_bases', 'q20_bases', 'q30_bases', 'q20_rate', 'q30_rate',  'gc_content'] #'duplication'
     json_str = ""
     with open(fastp_json,mode='rt',encoding='utf-8') as fh:
         json_str = fh.read()
@@ -108,7 +108,7 @@ def parse_fastp_json(sample,fastp_json):
     #print(fastp_dict['summary']['after_filtering'])
     # 输出样品名与表头
     summary_header = ['Sample','total reads(M)','total bases(G)','clean reads(M)','clean bases(G)','valid bases',
-                    'Q30 bases','GC content']
+                    'Q30 bases','GC content','duplication rate']
     #数值
     before_total_reads = int(fastp_dict['summary']['before_filtering']['total_reads'])
     before_total_bases = int(fastp_dict['summary']['before_filtering']['total_bases'])
@@ -120,7 +120,17 @@ def parse_fastp_json(sample,fastp_json):
                      "{:.2f}%".format(convertSizeUnit(after_total_bases, source='B', target='GB', return_unit=False)),
                      "{:.2f}%".format(int(fastp_dict['summary']['after_filtering']['total_bases'])/int(fastp_dict['summary']['before_filtering']['total_bases'])*100),
                      "{:.2f}%".format(float(fastp_dict['summary']['after_filtering']['q30_rate'])*100),
-                     "{:.2f}%".format(float(fastp_dict['summary']['after_filtering']['gc_content'])*100)
+                     "{:.2f}%".format(float(fastp_dict['summary']['after_filtering']['gc_content'])*100),
+                     "{:.2f}%".format(float(fastp_dict['duplication']['rate'])*100)
+                     ]
+    summary_tab_num_lst = [sample,str(before_total_reads), 
+                     str(before_total_bases), 
+                     str(after_total_reads),
+                     str(after_total_bases),
+                     "{:.2f}%".format(int(fastp_dict['summary']['after_filtering']['total_bases'])/int(fastp_dict['summary']['before_filtering']['total_bases'])*100),
+                     "{:.2f}%".format(float(fastp_dict['summary']['after_filtering']['q30_rate'])*100),
+                     "{:.2f}%".format(float(fastp_dict['summary']['after_filtering']['gc_content'])*100),
+                     "{:.2f}%".format(float(fastp_dict['duplication']['rate'])*100)
                      ]
 
     # 分表
@@ -135,7 +145,7 @@ def parse_fastp_json(sample,fastp_json):
             before_filtering_lst.append(str(fastp_dict['summary']['before_filtering'][key]))
             after_filtering_lst.append(str(fastp_dict['summary']['after_filtering'][key]))
 
-    return summary_header,summary_tab_lst,summary_target_lst,before_filtering_lst,after_filtering_lst
+    return summary_header,summary_tab_lst,summary_tab_num_lst,summary_target_lst,before_filtering_lst,after_filtering_lst
 
 def GetAllFileNames(pwd,wildcard='*'):
     '''
@@ -207,15 +217,17 @@ def main():
     #pwd = os.getcwd()
     pwd = Path(pwd)
     os.chdir(pwd)
-    file_list = GetAllFilePaths(pwd,wildcard='*.qc.fastp.json')
+    file_list = GetAllFilePaths(pwd,wildcard='*.qc.json')
     summary_header = "" # 
     summary_tab_all_list = []
+    summary_tab_num_all_list = []
     for sample_path in file_list:
         #print(type(sample_path))
         sample = re.split(r"\.",str(sample_path.name))[0] 
         fastp_json_path = sample_path
-        summary_header,summary_tab_lst,summary_target_lst,before_filtering_lst,after_filtering_lst = parse_fastp_json(sample,fastp_json_path)
+        summary_header,summary_tab_lst,summary_tab_num_lst,summary_target_lst,before_filtering_lst,after_filtering_lst = parse_fastp_json(sample,fastp_json_path)
         summary_tab_all_list.append(summary_tab_lst)
+        summary_tab_num_all_list.append(summary_tab_num_lst)
         
     with open('all.summary.tsv',mode='wt',encoding='utf-8') as out:
         count = 0
@@ -233,6 +245,18 @@ def main():
         #     out.write('\t'.join(summary_header)+'\n')
         #     out.write('\t'.join(tab_lst)+'\n')
         
+    with open('all.summary.num.tsv',mode='wt',encoding='utf-8') as out:
+        count = 0
+        for tab_lst in summary_tab_num_all_list:
+            count +=1
+            if count==1:
+                out.write('\t'.join(summary_header)+'\n')
+            out.write('\t'.join(tab_lst)+'\n')
+
+    with open('all.summary.num.md',mode='wt',encoding='utf-8') as out:
+        line_list = list2markdown(summary_header,summary_tab_num_all_list)
+        for tab_lst in line_list:
+            out.write(tab_lst+'\n')
 
 
 if __name__ == '__main__':
