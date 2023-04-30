@@ -1,6 +1,11 @@
 # web：
 # https://genome.ucsc.edu/cgi-bin/hgBlat 
 
+# faToTwoBit
+# wget -c http://hgdownload.cse.ucsc.edu/admin/exe/linux.x86_64/faToTwoBit
+
+# faToTwoBit genome.fa genome.2bit
+
 # download:
 # http://hgdownload.soe.ucsc.edu/admin/exe/linux.x86_64/
 
