@@ -10,6 +10,7 @@ featureCounts \\
   --nonSplitOnly \\
   -T 2 \\
   -p \\
+  -t CDS \\
   -g gene_id \\
   -a /data/database/genome/ref.gtf \\
   -o all.counts.${sampleA}_vs_${sampleB}.txt \\
