@@ -1,5 +1,6 @@
 #!/bin/bash
 
+
 cd /data/work/megeblast/
 echo "start time: `date +"%Y-%m-%d %H:%M:%S"`" >time.log
 
@@ -14,3 +15,11 @@ echo "start time: `date +"%Y-%m-%d %H:%M:%S"`" >time.log
     -out result.blast
 
 echo "end time: `date +"%Y-%m-%d %H:%M:%S"`" >>time.log
+
+
+
+# preparation
+#wget https://ftp.ncbi.nlm.nih.gov/pub/taxonomy/taxdmp.zip
+#wget https://ftp.ncbi.nlm.nih.gov/pub/taxonomy/accession2taxid/dead_nucl.accession2taxid.gz
+#unzip taxdmp.zip
+#grep "scientific name" names.dmp | awk -F"|" '{print $1,$2}' |sed 's/\t \t/\t/' > tax_id2name.txt
