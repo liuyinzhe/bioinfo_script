@@ -19,6 +19,8 @@ echo -e "cd ${VAR_PATH} ; \
   -remove \
   -protocol refGene,avsnp150,1000g2015aug_all,1000g2015aug_eas,clinvar_20230520,intervar_20180118,cosmic68,exac03,dbnsfp42c,dbscsnv11,gnomad211_exome,gnomad211_genome,esp6500siv2_all,ljb26_all,revel \
   -operation g,f,f,f,f,f,f,f,f,f,f,f,f,f,f \
+  -argument '-hgvs',,,,,,,,,,,,,, \
+  -polish \
   -nastring \. -vcfinput  " >> batch_annovar.sh
 
 done < tumor_normal_pair
