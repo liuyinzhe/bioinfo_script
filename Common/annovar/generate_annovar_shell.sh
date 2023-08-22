@@ -24,3 +24,6 @@ echo -e "cd ${VAR_PATH} ; \
   -nastring \. -vcfinput  " >> batch_annovar.sh
 
 done < tumor_normal_pair
+
+# -hgvs
+#https://cloud.tencent.com/developer/article/1626447
