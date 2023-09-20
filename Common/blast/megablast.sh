@@ -5,6 +5,7 @@ cd /data/work/megeblast/
 echo "start time: `date +"%Y-%m-%d %H:%M:%S"`" >time.log
 
 /data/Common/bin/blastn \
+   -task megablast  \
    -db /data/database/nucl/NT \
    -query query.fa \
    -outfmt  '6 qseqid sseqid pident length mismatch gapopen qlen qstart qend slen sstart send evalue bitscore qcovs qcovhsp qcovus' \
