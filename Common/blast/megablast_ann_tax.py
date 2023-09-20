@@ -15,10 +15,10 @@ xx      KX610138.1      99.462  558     0       3       567     3       558     
 qseqid* sseqid* pident* length mismatch gapopen qlen qstart qend slen sstart send evalue bitscore qcovs* qcovhsp qcovus tax
 
 # 预先读取文件存入内存
-# /data/database/taxonomy/tax_id2name.txt
+# /data/home/liuyinzhe/database/taxonomy/tax_id2name.txt
 
 # 单独读取，读取过程中进行查询是否在字典内
-# /data/database/taxonomy/dead_nucl.accession2taxid.gz
+# /data/home/liuyinzhe/database/taxonomy/dead_nucl.accession2taxid.gz
 # # 逐步减少列表，保存对应id 序列，用于后续输出
 
 # 根据id序列输出
@@ -107,25 +107,36 @@ def main():
                 sseqid_lst.append(sseq_id)
                 qseqid_lst.append(qseqid)
     taxonomy_dic = {} # id:[拉丁全称,属名]
-    with open("/data/database/taxonomy/tax_id2name.txt",mode='rt',encoding='utf-8') as fh:
+    with open("/data/home/liuyinzhe/database/taxonomy/tax_id2name.txt",mode='rt',encoding='utf-8') as fh:
         for line in fh:
-            record = re.split('\t',line.strip())
+            if line.startswith('taxonomy_id'):
+                continue
+            
+            record = re.split('\t',line.strip('\n'))#.strip())
+            #print(record)
             taxonomy_id = record[0]
-            latin_name = record[1]
+            Kingdom_name = record[1]
+            Phylum_name = record[2]
+            Family_name = record[3]
+            Genus_name = record[4]
+            latin_name = record[5]
             if latin_name.startswith('uncultured'):
-                genus_name = re.split('\s+',latin_name)[1]
+                Genus_name = re.split('\s+',latin_name)[1]
             else:
-                genus_name = re.split('\s+',latin_name)[0]
+                Genus_name = re.split('\s+',latin_name)[0]
 
             if taxonomy_id not in taxonomy_dic:
-                taxonomy_dic[taxonomy_id] = [latin_name,genus_name]
+                taxonomy_dic[taxonomy_id] = [Kingdom_name,Phylum_name,Family_name,Genus_name,latin_name]
 
     sseqid_tmp = set(copy.copy(sseqid_lst))
     accession2taxid_dic = {}
     print(len(sseqid_tmp))
-    with gzip.open('/data/database/taxonomy/nucl_gb.accession2taxid.gz',mode='rt') as gz, \
+    with gzip.open('/data/home/liuyinzhe/database/taxonomy/nucl_gb.accession2taxid.gz',mode='rt') as gz, \
         open('result.xls',mode='wt',encoding='utf-8') as out,open('table_header_readme.txt',mode='wt',encoding='utf-8') as readme,\
-        open('acc2taxid.xls',mode='wt',encoding='utf-8') as lst_obj:
+        open('acc2taxid.xls',mode='wt',encoding='utf-8') as lst_obj,\
+        open('unknow_blast.xls',mode='wt',encoding='utf-8') as unknow:
+        blast_header = "qseqid\tsseqid\tpident\tlength\tmismatch\tgapopen\tqlen\tqstart\tqend\tslen\tsstart\tsend\tevalue\tbitscore\tqcovs\tqcovhsp\tqcovus\n"
+        unknow.write(blast_header)
         for line in gz:
             '''
             accession       accession.version       taxid   gi
@@ -136,7 +147,7 @@ def main():
             taxid = record[2]
             #print(taxid,accver)
             if len(sseqid_tmp) != 0 and accver in sseqid_tmp:
-                #print(accver,taxid,'bingo')
+                print(accver,taxid,'bingo')
                 sseqid_tmp.remove(accver)
                 #print(len(sseqid_tmp))
                 accession2taxid_dic[accver] = taxid
@@ -150,7 +161,7 @@ def main():
         # 开始 写
         readme.write(readme_str)
         #
-        header_str = "qseqid\tsseqid\tpident\tlength\tmismatch\tgapopen\tqlen\tqstart\tqend\tslen\tsstart\tsend\tevalue\tbitscore\tqcovs\tqcovhsp\tqcovus\tlatin_name\tgenus_name\n"
+        header_str = "qseqid\tsseqid\tpident\tlength\tmismatch\tgapopen\tqlen\tqstart\tqend\tslen\tsstart\tsend\tevalue\tbitscore\tqcovs\tqcovhsp\tqcovus\tKingdom_name\tPhylum_name\tFamily_name\tGenus_name\tlatin_name\n"
         out.write(header_str)
         for index in range(len(sseqid_lst)):
             sseqid = sseqid_lst[index] # subject
@@ -158,9 +169,12 @@ def main():
             record_lst = best_hit_dic[qseqid]
             #accession2taxid_dic[accver]=taxid
             #taxonomy_dic[taxonomy_id] = [latin_name,genus_name]
+            if sseqid not in  accession2taxid_dic:
+                unknow.write('\t'.join(best_hit_dic[qseqid])+'\n')
+                continue
             taxonomy_id = accession2taxid_dic[sseqid]
-            latin_name,genus_name = taxonomy_dic[taxonomy_id]
-            lst_obj.write('\t'.join([sseqid,taxonomy_id,latin_name,genus_name])+'\n')
+            Kingdom_name,Phylum_name,Family_name,Genus_name,latin_name = taxonomy_dic[taxonomy_id]
+            lst_obj.write('\t'.join([sseqid,taxonomy_id,Kingdom_name,Phylum_name,Family_name,Genus_name,latin_name])+'\n')
             # record_lst.append(latin_name)
             # record_lst.append(genus_name)
             record_lst += taxonomy_dic[accession2taxid_dic[sseqid]]
