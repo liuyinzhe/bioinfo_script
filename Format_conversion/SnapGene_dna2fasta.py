@@ -40,7 +40,6 @@ def main():
             file_path = sample_path
             print(sample)
             print(file_path)
-            out.write(">"+sample+"\n")
             # 读文件
             with open(file_path,mode='rb') as fh:
                 line_first = fh.readline()
