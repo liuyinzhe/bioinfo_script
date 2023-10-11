@@ -5,13 +5,16 @@ export PATH=/data/envs/microbe/bin:$PATH
 
 startTime=`date '+%Y-%m-%d %H:%M:%S'`
 startTime_s=`date +%s`
+# index 索引的文件位置必须在 --workdir 指定的目录下，否则运行报错
+sortmerna --index 0 --threads 8 \
+--ref /data/database/rRNA_databases/smr_v4.3_default_db.fasta \
+--workdir /data3/sortmerna/sample/
+# generate directory : idx kvdb readb out
 
+# run
 sortmerna --index 0 --threads 8 \
 --ref /data/database/rRNA_databases/smr_v4.3_default_db.fasta \
 --workdir /data3/sortmerna/sample/ \
---kvdb /data/database/rRNA_databases/kvdb  \
---idx-dir /data/database/rRNA_databases/idx  \
---readb /data/database/rRNA_databases/readb  \
 --reads sample.1_kneaddata_paired_1.fastq \
 --reads sample.1_kneaddata_paired_2.fastq \
 --aligned "sample/rRNA" --other "sample/clean" --paired_in --fastx --out2  && \
@@ -21,7 +24,9 @@ rm -rf sample/rRNA.fastq
 #    --kvdb            PATH        Optional  Directory for Key-value database            WORKDIR/kvdb
 #    --idx-dir         PATH        Optional  Directory for storing Reference index.      WORKDIR/idx
 #    --readb           PATH        Optional  Storage for pre-processed reads             WORKDIR/readb/
-
+# --kvdb /data/database/rRNA_databases/kvdb  \
+# --idx-dir /data/database/rRNA_databases/idx  \
+# --readb /data/database/rRNA_databases/readb  \
 
 endTime=`date '+%Y-%m-%d %H:%M:%S'`
 endTime_s=`date +%s`
