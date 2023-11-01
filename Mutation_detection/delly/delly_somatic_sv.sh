@@ -34,10 +34,15 @@ sansa annotate -g Homo_sapiens.GRCh37.87.gtf.gz delly.${sample}.somatic.PASS.vcf
 # https://grch37.ensembl.org/Homo_sapiens/Info/Index
 # https://ftp.ensembl.org/pub/grch37/current/gtf/homo_sapiens/Homo_sapiens.GRCh37.87.gtf.gz
 
-
 # gtf hg38
 # https://www.ensembl.org/Homo_sapiens/Info/Index
 # https://ftp.ensembl.org/pub/release-110/gtf/homo_sapiens/Homo_sapiens.GRCh38.110.gtf.gz
+
+#  -f transcript  \
+#https://github.com/dellytools/sansa/issues/3
+#Ensembl and UCSC use different feature values. By default, sansa uses "gene" as the feature value (fine for Ensembl) but for UCSC you need to specify "transcript".
+#sansa annotate -f transcript -g hg38.knownGene.gtf.gz ADB_LL.delly.SV.vcf.gz
+
 
 
 # hg19 gnomad 2.1 SV
