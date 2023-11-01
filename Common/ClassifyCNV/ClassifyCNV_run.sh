@@ -1,3 +1,4 @@
+# nohup sh update_clingen.sh &
 python3 ClassifyCNV.py \
    --infile Examples/ACMG_examples.hg19.bed \
    --GenomeBuild hg19 \
