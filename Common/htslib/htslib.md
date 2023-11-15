@@ -1,7 +1,7 @@
 ### bgzip 
 
 ```bash
-gzip A.vcf 
+bgzip A.vcf 
 ```
 
 ## tabix 
