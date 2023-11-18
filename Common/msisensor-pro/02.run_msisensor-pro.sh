@@ -1,5 +1,6 @@
 /data/envs/Common/bin/msisensor-pro msi \
   -c  20 \
+  -z  1 \
   -d  ./hg19.microsatelittes.site  \
   -t SP42.sorted.markdup.BQSR.bam \
   -n PC_41.sorted.markdup.BQSR.bam \
