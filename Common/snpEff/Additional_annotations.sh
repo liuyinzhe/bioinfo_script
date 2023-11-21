@@ -13,3 +13,15 @@ java -Xmx8g -jar ~/software/snpEff/snpEff.jar -o vcf -geneId -hgvsOld -hgvsTrId 
 
 ## Using the -cancer command line option, you can compare somatic vs germline samples.
 java -Xmx8g -jar snpEff.jar -v -cancer GRCh37.75 cancer.vcf > cancer.ann.vcf
+
+
+
+### dbsnp && clinvar
+
+ java -Xmx8g  -jar /data/public/software/snpEff/SnpSift.jar annotate \
+                      -info GENEINFO,CLNSIG,CLNHGVS,MC,RS \
+                      /data/public/database/clinvar/hg19/clinvar_20231112.vcf.gz \
+                      sample.vcf.gz > sample.clinvar.vcf && \
+ java -Xmx8g  -jar /data/public/software/snpEff/SnpSift.jar annotate \
+                      -id /data/public/database/dbsnp/hg19/GCF_000001405.25.chr.gz \
+		      sample.clinvar.vcf >sample.clinvar.dbsnp.vcf
