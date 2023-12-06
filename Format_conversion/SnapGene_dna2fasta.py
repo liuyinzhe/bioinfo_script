@@ -42,7 +42,8 @@ def main():
             print(file_path)
             # 读文件
             with open(file_path,mode='rb') as fh:
-                line_first = fh.readline()
+                #line_first = fh.readline()
+                line_first = fh.read()
                 line_str = str(line_first)
                 #print(line_str)
                 line=re.search(r'[atgcATGC]{10,}',line_str).group(0)
