@@ -82,28 +82,6 @@ def pslCalcMilliBad(sizeMul, qEnd, qStart, tEnd, tStart, qNumInsert, tNumInsert,
         milliBad = (1000 * (misMatches * sizeMul + insertFactor + roundAwayFromZero)) / total
     return milliBad
 
-'''
-while (my $file = shift) {
-  if ($file =~ m/.gz$/) {
-    open (FH, "zcat $file|") or die "can not read $file";
-  } else {
-    open (FH, "<$file") or die "can not read $file";
-  }
-  while (my $line = <FH>) {
-    next if ($line =~ m/^#/);
-    chomp $line;
-    my ($matches, $misMatches, $repMatches, $nCount, $qNumInsert, $qBaseInsert, $tNumInsert, $tBaseInsert, $strand, $qName, $qSize, $qStart, $qEnd, $tName, $tSize, $tStart, $tEnd, $blockCount, $blockSizes, $qStarts, $tStarts) = split('\t', $line);
-    my $sizeMul = pslIsProtein($blockCount, $strand, $tStart, $tEnd, $tSize, $tStarts, $blockSizes);
-    my $pslScore = $sizeMul * ($matches + ( $repMatches >> 1) ) -
-        $sizeMul * $misMatches - $qNumInsert - $tNumInsert;
-    my $milliBad = int(pslCalcMilliBad($sizeMul, $qEnd, $qStart, $tEnd, $tStart, $qNumInsert, $tNumInsert, $matches, $repMatches, $misMatches, 1));
-    my $percentIdentity = 100.0 - $milliBad * 0.1;
-    printf "%s\t%d\t%d\t%s:%d-%d\t%d\t%.2f\n", $tName, $tStart, $tEnd, $qName, $qStart, $qEnd, $pslScore, $percentIdentity;
-
-  }
-  close (FH);
-}
-'''
 
 def calculate_score(row,columns_list):
     matches,misMatches,repMatches,nCount,qNumInsert,\
