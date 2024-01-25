@@ -1,0 +1,9 @@
+
+# https://hgdownload.cse.ucsc.edu/goldenPath/hg19/liftOver/
+#hg19ToHg15.over.chain.gz
+#hg19ToHg17.over.chain.gz
+#hg19ToHg18.over.chain.gz
+#hg19ToHg38.over.chain.gz
+
+# https://hgdownload.cse.ucsc.edu/goldenPath/hg38/liftOver/
+#hg38ToHg19.over.chain.gz
