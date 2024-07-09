@@ -36,7 +36,7 @@ if not os.path.exists(odir):
     assert not os.makedirs(odir)
 
 
-def safe_open(file_name, mode):
+def safe_open(file_name, mode='rt'):
     try:
         if not file_name.endswith('.gz'):
             return open(file_name, mode, encoding='utf-8')
@@ -70,7 +70,7 @@ if snp:
 
     hetero = {'hete': 0, 'homo': 0}  # "hete","homo"
 
-    with safe_open(snp, 'r') as txt:
+    with safe_open(snp, 'rt') as txt:
         for line in txt:
             if line.startswith("Chr\t"):
                 continue
@@ -217,7 +217,7 @@ if indel:
     for x in anno_type_lst:
         anno_type[x] = 0
 
-    for line in safe_open(indel, 'r'):  #
+    for line in safe_open(indel, 'rt'):  #
         if line.startswith("Chr\t"):
             continue
         elif not line.startswith("#"):
