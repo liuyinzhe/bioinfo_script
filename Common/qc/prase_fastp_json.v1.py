@@ -3,11 +3,7 @@ import re
 import os
 from pathlib import Path
 import math
-'''
-v1 输出
-all.summary.md
-all.summary.tsv
-'''
+
 def convertSizeUnit(sz, source='B', target='auto', return_unit=False):
     '''
     文件大小指定单位互转，自动则转换为最大的适合单位
@@ -98,7 +94,7 @@ def parse_fastp_json(sample,fastp_json):
 	},
     '''
     # fastp 内容表头
-    summary_target_lst = ['total_reads', 'total_bases', 'q20_bases', 'q30_bases', 'q20_rate', 'q30_rate',  'gc_content'] #'duplication'
+    summary_target_lst = ['total_reads', 'total_bases', 'q20_bases', 'q30_bases', 'q20_rate', 'q30_rate',  'gc_content']
     json_str = ""
     with open(fastp_json,mode='rt',encoding='utf-8') as fh:
         json_str = fh.read()
@@ -107,27 +103,32 @@ def parse_fastp_json(sample,fastp_json):
     #print("#"*26)
     #print(fastp_dict['summary']['after_filtering'])
     # 输出样品名与表头
-    summary_header = ['Sample','total reads(M)','total bases(G)','clean reads(M)','clean bases(G)','valid bases',
+    # 
+    summary_header = ['Sample','total reads(M)','total bases(G)','clean reads(M)','clean bases(G)','valid bases','valid percentage','Q20 bases',
                     'Q30 bases','GC content','duplication rate']
-    #数值
+    #数值all.summary.tsv
     before_total_reads = int(fastp_dict['summary']['before_filtering']['total_reads'])
     before_total_bases = int(fastp_dict['summary']['before_filtering']['total_bases'])
     after_total_reads = int(fastp_dict['summary']['after_filtering']['total_reads'])
     after_total_bases = int(fastp_dict['summary']['after_filtering']['total_bases'])
-    summary_tab_lst = [sample,"{:.2f}%".format(convertSizeUnit(before_total_reads, source='B', target='MB', return_unit=False)), 
-                     "{:.2f}%".format(convertSizeUnit(before_total_bases, source='B', target='GB', return_unit=False)), 
-                     "{:.2f}%".format(convertSizeUnit(after_total_reads, source='B', target='MB', return_unit=False)),
-                     "{:.2f}%".format(convertSizeUnit(after_total_bases, source='B', target='GB', return_unit=False)),
-                     "{:.2f}%".format(int(fastp_dict['summary']['after_filtering']['total_bases'])/int(fastp_dict['summary']['before_filtering']['total_bases'])*100),
-                     "{:.2f}%".format(float(fastp_dict['summary']['after_filtering']['q30_rate'])*100),
-                     "{:.2f}%".format(float(fastp_dict['summary']['after_filtering']['gc_content'])*100),
-                     "{:.2f}%".format(float(fastp_dict['duplication']['rate'])*100)
+    #valid_percent = float(after_total_bases/before_total_bases)
+    summary_tab_lst = [sample,"{:.2f}".format(convertSizeUnit(before_total_reads, source='B', target='MB', return_unit=False)), #Sample	total reads(M)
+                     "{:.2f}".format(convertSizeUnit(before_total_bases, source='B', target='GB', return_unit=False)),  #total bases(G)	
+                     "{:.2f}".format(convertSizeUnit(after_total_reads, source='B', target='MB', return_unit=False)),  #clean reads(M)
+                     "{:.2f}".format(convertSizeUnit(after_total_bases, source='B', target='GB', return_unit=False)),  #clean bases(G)	
+                     #"{:.2f}%".format(valid_percent*100),#valid bases	
+                     "{:.2f}%".format(int(fastp_dict['summary']['after_filtering']['total_bases'])/int(fastp_dict['summary']['before_filtering']['total_bases'])*100), #valid percentage
+                     "{:.2f}%".format(float(fastp_dict['summary']['after_filtering']['q20_rate'])*100), #Q30 bases
+                     "{:.2f}%".format(float(fastp_dict['summary']['after_filtering']['q30_rate'])*100), #Q30 bases
+                     "{:.2f}%".format(float(fastp_dict['summary']['after_filtering']['gc_content'])*100), ##GC content	
+                     "{:.2f}%".format(float(fastp_dict['duplication']['rate'])*100) #duplication rate
                      ]
     summary_tab_num_lst = [sample,str(before_total_reads), 
                      str(before_total_bases), 
                      str(after_total_reads),
                      str(after_total_bases),
-                     "{:.2f}%".format(int(fastp_dict['summary']['after_filtering']['total_bases'])/int(fastp_dict['summary']['before_filtering']['total_bases'])*100),
+                     str(int(fastp_dict['summary']['after_filtering']['total_bases'])),
+                     "{:.2f}%".format(float(fastp_dict['summary']['after_filtering']['q20_rate'])*100),
                      "{:.2f}%".format(float(fastp_dict['summary']['after_filtering']['q30_rate'])*100),
                      "{:.2f}%".format(float(fastp_dict['summary']['after_filtering']['gc_content'])*100),
                      "{:.2f}%".format(float(fastp_dict['duplication']['rate'])*100)
@@ -208,7 +209,28 @@ def list2markdown(header_list,tab_list):
         line_list.append(row)
     return line_list
 
+def save_json(json_dic,file_path):
+    json_str = json.dumps(json_dic, sort_keys=True, indent=4, separators=(',', ':'))
+    with open(file_path,mode='wt',encoding='utf-8') as f:
+        f.write(json_str)
 
+def save_qc_stat(summary_tab_all_list,pwd):
+    file_path=pwd.joinpath('qc_stat.json')
+    header = ['total bases(G)','clean bases(G)','Q20 bases','Q30 bases','GC content']
+    dic = {
+        "col_labels":header,
+        "tbl_contents":[]
+    }
+    for summary_tab_lst in summary_tab_all_list:
+        #print(summary_tab_lst)
+        sample,_,total_base,_,total_bases,_,q20,q30,gc_prc,_= summary_tab_lst
+        tmp_dic = {}
+        tmp_dic['sample']=sample
+        tmp_dic['cols'] = [total_base,total_bases,q20,q30,gc_prc]
+        dic['tbl_contents'].append(tmp_dic)
+    save_json(dic,file_path)
+
+    return None
 
 def main():
 
@@ -226,9 +248,12 @@ def main():
         sample = re.split(r"\.",str(sample_path.name))[0] 
         fastp_json_path = sample_path
         summary_header,summary_tab_lst,summary_tab_num_lst,summary_target_lst,before_filtering_lst,after_filtering_lst = parse_fastp_json(sample,fastp_json_path)
+        #all.summary.tsv
         summary_tab_all_list.append(summary_tab_lst)
+        #all.summary.num.tsv
         summary_tab_num_all_list.append(summary_tab_num_lst)
-        
+    # 生成 qc_stat.json,用于报告
+    save_qc_stat(summary_tab_all_list,pwd)
     with open('all.summary.tsv',mode='wt',encoding='utf-8') as out:
         count = 0
         for tab_lst in summary_tab_all_list:
@@ -244,20 +269,22 @@ def main():
         # for tab_lst in summary_tab_all_list:
         #     out.write('\t'.join(summary_header)+'\n')
         #     out.write('\t'.join(tab_lst)+'\n')
-        
+    #all.summary.num.tsv
+    summary_num_header = ['Sample','total reads','total bases','clean reads','clean bases','valid bases','valid percentage','Q30 bases','GC content','duplication rate']
     with open('all.summary.num.tsv',mode='wt',encoding='utf-8') as out:
         count = 0
         for tab_lst in summary_tab_num_all_list:
             count +=1
             if count==1:
-                out.write('\t'.join(summary_header)+'\n')
+                out.write('\t'.join(summary_num_header)+'\n')
             out.write('\t'.join(tab_lst)+'\n')
 
     with open('all.summary.num.md',mode='wt',encoding='utf-8') as out:
-        line_list = list2markdown(summary_header,summary_tab_num_all_list)
+        line_list = list2markdown(summary_num_header,summary_tab_num_all_list)
         for tab_lst in line_list:
             out.write(tab_lst+'\n')
 
 
 if __name__ == '__main__':
     main()
+
