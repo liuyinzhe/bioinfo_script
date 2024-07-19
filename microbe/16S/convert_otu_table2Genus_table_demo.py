@@ -138,8 +138,6 @@ with open('otu_table_D5_out.tsv',mode='rt',encoding='utf-8') as fh,\
         if line.startswith('taxonomy'):
             outn1.write(line)
             outn2.write(line)
-            outt1.write(line)
-            outt2.write(line)
             continue
         if re.search("^NO\d+?-1",line):
             line = re.sub("-1","",line)
