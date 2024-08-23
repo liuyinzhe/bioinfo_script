@@ -13,3 +13,6 @@ blastp -db db -query all.faa -outfmt 6 -evalue 1e-5 -num_threads 4  -out result.
 #--outfmt  6 qseqid sseqid pident length mismatch gapopen qlen qstart qend slen sstart send evalue bitscore qcovhsp
 
 #注意细节，Diamond不需要单引号，少了一个 qcovs 的计算，源码也是没写
+
+# 最优blast 比对
+# python -m jcvi.formats.blast best -n 1 raw.blast.txt
