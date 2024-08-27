@@ -17,6 +17,7 @@ echo "start time: `date +"%Y-%m-%d %H:%M:%S"`" >time.log
 
 echo "end time: `date +"%Y-%m-%d %H:%M:%S"`" >>time.log
 
+python3 megablast_ann_tax.py
 
 
 # preparation
