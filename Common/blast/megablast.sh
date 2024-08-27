@@ -19,6 +19,7 @@ echo "end time: `date +"%Y-%m-%d %H:%M:%S"`" >>time.log
 
 python3 megablast_ann_tax.py
 
+cut -f 22 result.xls  |sort | uniq -c |sort -k1nr >summary
 
 # preparation
 #wget https://ftp.ncbi.nlm.nih.gov/pub/taxonomy/taxdmp.zip
