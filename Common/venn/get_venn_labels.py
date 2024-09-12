@@ -181,7 +181,7 @@ def main():
                 out.write('\t'.join(out_lst)+'\n')
 
             
-    target_gene_df = pd.read_excel("04 3d + 04 es 3d vs 05 3d + 05 es 3d 重叠基因 inflammatory.xlsx")
+    target_gene_df = pd.read_excel("重叠基因.xlsx")
     target_gene_lst = target_gene_df['GeneName'].to_list()
 
     venn_gene_df = pd.read_csv('venn_gene_info.xls',encoding="utf-8",sep='\t',index_col=None)
