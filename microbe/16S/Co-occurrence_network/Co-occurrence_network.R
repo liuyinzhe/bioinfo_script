@@ -1,7 +1,7 @@
- rm(list = ls())
- options(stringsAsFactors = F)
- setwd('D:\\Rscript\\otu_net\\merge2')
- 
+rm(list = ls())
+options(stringsAsFactors = F)
+setwd('D:\\Rscript\\otu_net\\merge2')
+
 
 library(igraph)
 library(WGCNA)
@@ -88,33 +88,99 @@ E(igraph)$color[E(igraph)$cor <= -0.6] <- "blue"	 # 负相关则边为蓝色
 #由于权重通常为正值，因此最好取个绝对值，相关系数重新复制一列
 #E(igraph)$correlation <- E(igraph)$cor#将weight赋值为correlation，正负代表相关性.
 #E(igraph)$weight <- abs(E(igraph)$weight)#将weight取绝对值
-E(igraph)$width <-  abs(E(igraph)$cor)*0.5 # 边的粗细与相关系数成正比，进行0.5倍放缩
+E(igraph)$width <-  abs(E(igraph)$cor)#*0.5 # 边的粗细与相关系数成正比，进行0.5倍放缩
 #cor 就是 weight 绝对值，0.5倍缩放
 
 # 固定随机数，保证出图一致性
 set.seed(123)
 coords <- layout_with_fr(igraph, niter=9999,grid="nogrid") # 生成布局
+
+
+
+
+
 pdf("Figure1C.pdf", height = 10,width = 14) # 保存图为PDF，指定宽和高
 plot(
-    igraph, 
-    layout=coords, 
-    main="Co-occurrence network",
-    vertex.label = NA, 
-    vertex.frame.color=NA,
-    margin=c(0,0,0,0) # 上下左右边框空余
-    ) # 画图
-legend("right", 
-         legend = legend_lable, 
-         pch=21,  # 散点类型
-         col=legend_color, 
-         pt.bg=legend_color, 
-         pt.cex=1, 
-         cex=.8,  # 注释整体大小调节
-         bty="n",
-         ncol=1   # 注释拆分多列
-  )
+  igraph, 
+  layout=coords, 
+  #main="Co-occurrence network",
+  cex.main = 6,
+  vertex.label = NA, 
+  vertex.frame.color=NA,
+  margin=c(0,0,0,1) # 上下左右边框空余
+) # 画图
+legend(x=1.2,y=0.35,#"right", 
+       title = "phylum",
+       title.font = 2, # 黑体加粗
+       title.adj = 0.2,
+       title.cex = 2, # 文字大小
+       legend = legend_lable, 
+       pch=21,  # 散点类型
+       col=legend_color, 
+       pt.bg=legend_color, 
+       pt.cex=1, 
+       cex=1.5,  # 注释整体大小调节
+       bty="n", # 关闭背景框
+       ncol=1   # 注释拆分多列
+)
+
+legend( x=1.2,y=0.75,
+        title = "correlation",
+        title.adj = 0.8,
+        title.cex = 2, # 文字大小
+        legend = c("positive","negative"), 
+        col = c("red","blue"), 
+        title.font = 2, # 黑体加粗
+        lty = 1,  # 线条类型
+        lwd = 1,  # 线条宽度
+        bty="n",  # 关闭背景框
+        cex=1.5,  # 注释整体大小调节
+)
+title(main = "Co-occurrence network", cex.main = 4)
+
 dev.off()
 
+
+png("Figure1C.png",height = 1000, width = 1400, units = "px",res=100) # 保存图为PDF，指定宽和高
+plot(
+  igraph, 
+  layout=coords, 
+  #main="Co-occurrence network",
+  cex.main = 6,
+  vertex.label = NA, 
+  vertex.frame.color=NA,
+  margin=c(0,0,0,1) # 上下左右边框空余
+) # 画图
+legend(x=1.2,y=0.35,#"right", 
+       title = "phylum",
+       title.font = 2, # 黑体加粗
+       title.adj = 0.2,
+       title.cex = 2, # 文字大小
+       legend = legend_lable, 
+       pch=21,  # 散点类型
+       col=legend_color, 
+       pt.bg=legend_color, 
+       pt.cex=1, 
+       cex=1.5,  # 注释整体大小调节
+       bty="n", # 关闭背景框
+       ncol=1   # 注释拆分多列
+)
+
+legend( x=1.2,y=0.75,
+        title = "correlation",
+        title.adj = 0.8,
+        title.cex = 2, # 文字大小
+        legend = c("positive","negative"), 
+        col = c("red","blue"), 
+        title.font = 2, # 黑体加粗
+        lty = 1,  # 线条类型
+        lwd = 1,  # 线条宽度
+        bty="n",  # 关闭背景框
+        cex=1.5,  # 注释整体大小调节
+)
+title(main = "Co-occurrence network", cex.main = 3)
+
+dev.off()
 
 
 ####保存为其他软件格式，我们下节课用gephi 软件作图，R语言也可以做这种图，但是做出来太难看。
