@@ -18,3 +18,8 @@ seqkit sample  \
    | gzip > sample.new.1.fq.gz
 #  --out-file sample.new.1.fq
   
+# 大文件，行数
+seqkit sample  \
+ --rand-seed 123 \
+ --proportion 0.9 \
+ sample.2.fq.gz|seqkit head -n 100  |gzip >sample_new.2.fq.gz
