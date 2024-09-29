@@ -180,13 +180,12 @@ def main():
                 #print(out_lst)
                 out.write('\t'.join(out_lst)+'\n')
 
-            
+    venn_gene_df = pd.read_csv('venn_gene_info.xls',encoding="utf-8",sep='\t',index_col=None)
+
+    # 从venn_gene_df中筛选已知的基因
     target_gene_df = pd.read_excel("重叠基因.xlsx")
     target_gene_lst = target_gene_df['GeneName'].to_list()
-
-    venn_gene_df = pd.read_csv('venn_gene_info.xls',encoding="utf-8",sep='\t',index_col=None)
     venn_gene_filter_df = venn_gene_df[venn_gene_df['gene_name'].isin(target_gene_lst)]
-    
     venn_gene_filter_df.to_csv('venn_gene_info_filter.xls',encoding="utf-8",sep='\t',index=False)
 
     #GeneName
