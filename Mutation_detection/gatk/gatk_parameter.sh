@@ -1,5 +1,13 @@
 
+# gatk reads 支持深度比基于reads统计少的的原因，降采样，过滤污染。
 
+# 降采样，深度过深则只取样部分； disable down-sampling process.
+# the --max-reads-per-alignment-start parameter was set to 0, which disabled down-sampling and took all the reads into account.
+--max-reads-per-alignment-start  0
+
+# 过滤污染，测序数据（所有样本）中需要积极去除的污染部分
+# Fraction of contamination in sequencing data (for all samples) to aggressively remove.
+--contamination-fraction-to-filter 0.0
 
 # call 参数
 
