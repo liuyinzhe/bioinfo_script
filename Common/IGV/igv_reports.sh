@@ -1,4 +1,5 @@
 # pip install igv-reports
+# samtools index wsl1.sorted.markdup.bam
 
 create_report  \
         sites.bed \
