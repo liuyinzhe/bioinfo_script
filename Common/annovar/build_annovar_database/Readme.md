@@ -16,7 +16,8 @@ bcftools norm 可以尝试替代 vt decompose/normalize 步骤
 >索引文件生成脚本来自
 >>https://github.com/pzweuj/practice/blob/master/perl/makeAnnovarIndex/makeAnnovarIndex.pl
 
-参考:
+
+>参考:
 https://pzweuj.github.io/2018/04/25/convert-clinvar-to-annovar.html
 https://pzweuj.github.io/2018/07/27/annovar-clinvar.html
 https://github.com/mobidic/update_annovar_db
