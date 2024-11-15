@@ -7,7 +7,7 @@ def fasta2phy(fasta_dic):
     seq_length = len(fasta_dic[seq_id_lst[0]])
     print('seq_length',seq_length)
     max_length = max([len(seq_id) for seq_id in seq_id_lst])
-    print('max_length',max_length)
+    print('ID_max_length',max_length)
 
     '''
     序列拆分为10个碱基长度一个列表元素
