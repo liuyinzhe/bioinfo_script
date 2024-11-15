@@ -39,7 +39,7 @@ def fasta2phy(fasta_dic):
             #print(out_str)
             out_phy_seq.append(out_str)
         out_phy_seq.append("\n")
-    # 取余,格局last index 继续取
+    # 取余, 基于last index 继续取
     if seq_length>50 and seq_length%50 !=0:
         for seq_id in seq_id_lst:
             seq_list = new_fasta_dic[seq_id][last_idx:last_idx+5]#
