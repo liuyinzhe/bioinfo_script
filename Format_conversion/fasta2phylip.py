@@ -25,6 +25,7 @@ def fasta2phy(fasta_dic):
     seq_id_dic = {}
     last_idx = 0
     for  idx in range(0,all_base_len,5):
+        #print(idx)
         last_idx = idx + 5
         #print(last_idx)
         for seq_id in seq_id_lst:
@@ -33,24 +34,16 @@ def fasta2phy(fasta_dic):
                 seq_id_dic[seq_id] = 1
                 sed_id_str = seq_id
             # 取序列的前5个元素
+            #print(new_fasta_dic[seq_id])
             seq_list = new_fasta_dic[seq_id][idx:idx+5]
             sed_id_out_str = sed_id_str.ljust(max_length)
             out_str = sed_id_out_str+" "+" ".join(seq_list)+'\n'
             #print(out_str)
             out_phy_seq.append(out_str)
         out_phy_seq.append("\n")
-    # 取余, 基于last index 继续取
-    if seq_length>50 and seq_length%50 !=0:
-        for seq_id in seq_id_lst:
-            seq_list = new_fasta_dic[seq_id][last_idx:last_idx+5]#
-            sed_id_out_str = "".ljust(max_length)
-            out_str = sed_id_out_str+" "+" ".join(seq_list)+'\n'
-            #print(out_str)
-            out_phy_seq.append(out_str)
 
     with open("out.phy",mode='wt',encoding='utf-8') as out:
         out.write(" {record_count} {seq_length}\n".format(record_count=record_count,seq_length=seq_length))
         for out_phy in out_phy_seq:
             out.write(out_phy)
-        
     return None
