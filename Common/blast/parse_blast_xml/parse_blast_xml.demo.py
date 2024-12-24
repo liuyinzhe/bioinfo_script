@@ -187,4 +187,32 @@ with open("primer_ASM2364667v1.xml",mode='rt',encoding='utf-8') as xml:
             print(hsp_query_sequence)
             print(hsp_match_str)
             print(hsp_sbjct_hit_sequence)
-          
+
+'''
+hit_ref_id: gnl|BL_ORD_ID|8
+hit_ref_title gnl|BL_ORD_ID|8 CM042706.1 Avena sativa ecotype Sanfensan chromosome 3D, whole genome shotgun sequence
+hit_accession: 8
+hit_definition: CM042706.1 Avena sativa ecotype Sanfensan chromosome 3D, whole genome shotgun sequence
+########## 8 CM042706.1 ##########
+match_base: 19
+align_len: 20
+identities: 19
+hsp_gaps: 0
+hsp_score: 16.0
+hsp_bits: 32.2105
+hsp_num_alignments: None
+hsp_query_start: 1
+hsp_query_end: 20
+hsp_sbjct_start: 460534359
+hsp_sbjct_end: 460534378
+hsp_strand: ('Plus', 'Plus')
+hsp_frame: (1, 1)
+ATCTGTCACGTGACGAGGCA
+|||||||| |||||||||||
+ATCTGTCAGGTGACGAGGCA
+application: BLASTN
+version: 2.13.0+
+database: /data/home/liuyinzhe/project/genome/ASM2364667v1/ASM2364667v1
+query_name: AM1840-R
+query_id: Query_10
+'''
