@@ -45,6 +45,6 @@ foreach my $chr ((1,10..19,2,20,21,22,3..9,"MT","X","Y")){ #Ordered array to mat
 	foreach my $index_region (sort keys %{$index{$chr}}){
 		my $start	= $index{$chr}->{$index_region}->[0];
 		my $stop	= $index{$chr}->{$index_region}->[1];
-		print OUT "$chr\t$index_region\t$start\t$stop\n";
+		print OUT "chr$chr\t$index_region\t$start\t$stop\n";
 	}
 }
