@@ -22,7 +22,7 @@ while (my $ln = <$in>) {
 	#my ($chr,$start,$stop) = split "\t", $ln;
 	next if $ln =~ /^#Chr/; 
 	my ($chr,$start,$stop) = split "\t", $ln;
-	$chr =~ s/^chr//i;
+	# $chr =~ s/^chr//i;
 	my $bin_start = int($start/$bin_size) * $bin_size;
 	my $current_file_position = tell $in;
 
