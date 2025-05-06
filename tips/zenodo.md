@@ -31,4 +31,4 @@ curl -o 10457006.zip https://zenodo.org/api/records/10457006/files-archive
 >ipconfig /flushdns
 ### 利用网页代理访问和下载数据库数据
 可以用CroxyProxy网页代理访问网址
-_需要注意,网页代理安全性未知,使用中请不要使用个人信息敏感_
+***需要注意,网页代理安全性未知,使用中请不要使用个人敏感信息***
