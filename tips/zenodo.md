@@ -27,3 +27,5 @@ curl -o 10457006.zip https://zenodo.org/api/records/10457006/files-archive
 >C:\WINDOWS\system32\drivers\etc\hosts
 >右键-属性-安全选项卡-选取当前用户-编辑-完全控制-应用
 >添加:188.185.48.194 zenodo.org
+>刷新DNS
+>ipconfig /flushdns  
