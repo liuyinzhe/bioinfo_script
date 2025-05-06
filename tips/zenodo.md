@@ -28,4 +28,7 @@ curl -o 10457006.zip https://zenodo.org/api/records/10457006/files-archive
 >右键-属性-安全选项卡-选取当前用户-编辑-完全控制-应用
 >添加:188.185.48.194 zenodo.org
 >刷新DNS
->ipconfig /flushdns  
+>ipconfig /flushdns
+### 利用网页代理访问和下载数据库数据
+可以用CroxyProxy网页代理访问网址
+_需要注意,网页代理安全性未知,使用中请不要使用个人信息敏感_
