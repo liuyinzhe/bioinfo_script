@@ -8,7 +8,7 @@
 #########################################################################
 
 import copy,logging,os,io,re,time,sys,platform,optparse,gzip,glob
-
+from pathlib import Path
 prog="InterVar"
 
 version = """%prog 2.2.2 20210727
@@ -1965,16 +1965,6 @@ def main():
 
 
 
-    config_file = os.path.join(os.path.dirname(__file__),"config.ini") 
-    if os.path.isfile(config_file):
-        config.read(config_file)
-        sections = config.sections()
-        for section in sections:
-            ConfigSectionMap(config,section)    
-    else:
-        print("Error: The default configure file of [ config.ini ] is not here, exit! Please redownload the InterVar.")
-        sys.exit()
-
 #begin to process user's options:
     if options.config != None:
         if os.path.isfile(options.config):
@@ -1984,6 +1974,19 @@ def main():
                 ConfigSectionMap(config,section)
         else:
             print("Error: The config file [ %s ] is not here,please check the path of your config file." % options.config)
+            sys.exit()
+    else:
+        script_path =Path(__file__)
+        scripts_dir = Path(script_path).parent
+        config_file  = scripts_dir.joinpath("config.ini")
+        # config_file = os.path.join(os.path.dirname(__file__),"config.ini") 
+        if os.path.isfile(config_file):
+            config.read(config_file)
+            sections = config.sections()
+            for section in sections:
+                ConfigSectionMap(config,section)    
+        else:
+            print("Error: The default configure file of [ config.ini ] is not here, exit! Please redownload the InterVar.")
             sys.exit()
 
     if options.buildver != None:
