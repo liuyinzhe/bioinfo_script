@@ -1,5 +1,5 @@
 # 安装环境
-mamba create -y -n humann3 humann python==3.12
+mamba create -y -n humann3 humann==3.8  metaphlan==4.0.6
 conda activate /data/home/liuyinzhe/software/miniconda3/envs/humann3
 
 # 下载数据库
