@@ -10,7 +10,7 @@ seqkit sample  \
 
 # 大文件使用，百分比
 seqkit sample  \
-  --quiet
+  --quiet  \
   --proportion  0.8 \
   --rand-seed 12 \
   --threads 2 \
