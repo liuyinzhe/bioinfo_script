@@ -4,6 +4,11 @@ mitoz annotate \
   --fastafiles  mitochondrion.fasta \
   --clade Chordata
 
+# genbank 输出模板需要修改或者指定
+#  --template_sbt <file>
+#                        The sqn template to generate the resulting genbank file. Go to https://www.ncbi.nlm.nih.gov/genbank/tbl2asn2/#Template to generate your own template file if you
+#                        like. ['~/envs/mitoz3.6/lib/python3.8/site-packages/mitoz/annotate/script/template.sbt']
+
 # clade
 # Chordata	脊索动物门
 # Arthropoda	节肢动物门
