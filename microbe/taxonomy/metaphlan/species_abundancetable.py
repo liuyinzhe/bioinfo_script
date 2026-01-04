@@ -1,5 +1,6 @@
 import pandas as pd
 import re
+from pathlib import Path
 
 '''
 k__Bacteria|p__Firmicutes|c__Bacilli|o__Lactobacillales|f__Streptococcaceae|g__Streptococcus|s__Streptococcus_anginosus_group
@@ -65,43 +66,65 @@ def parse_taxonomy(taxonomy_str):
             #taxonomy_lst.append('NA')
     return taxonomy_lst
 
-dup_otu_id = {}
-count = 1
-with open('species_abundance.txt',mode='rt',encoding='utf-8') as fh, open('otu_tablex.txt',mode='wt',encoding='utf-8') as out:
-    '''
-    kingdom,phylum,class,order,family,genus,species
-    k__Bacteria|p__Actinobacteria|c__Actinobacteria|o__Actinomycetales|f__Actinomycetaceae|g__Actinobaculum|s__Actinobaculum_sp_oral_taxon_183
-    '''
-    for line in fh:
-        record = re.split('\t',line.strip())
-        
-        if line.startswith('clade_name'):
-            new_line = re.sub("\n","\tkingdom\tphylum\tclass\torder\tfamily\tgenus\tspecies\n",line) 
-            out.write(new_line)
-            continue
 
-        taxonomy_str = record[0]
-        taxonomy_record = re.split(r"\|",taxonomy_str)
-        taxonomy_lst = parse_taxonomy(taxonomy_str)
-        out.write(taxonomy_record[-1]+'\t'+"\t".join(record[1:])+"\t"+"\t".join(taxonomy_lst)+"\n")
-        # 末尾添加一个分类编号
-        # if r"|" not in  line:  # 只有一个分类 如
-        #     #print(record[0])
-        #     #taxonomy_str = record[0]
-        #     taxonomy = re.sub(r"|","\t",record[0])
-        #     taxonomy_record = re.split("\t",taxonomy)
-        #     out.write(record[0]+'\t'+"\t".join(record[1:])+"\t"+taxonomy_record+"\n")
-        # else:
-        #     # 解析taxonomy
-        #     taxonomy_str = record[0]
-        #     #print(re.split('\|',taxonomy_str)[-1])
-        #     otu_id = re.split(r"\|",taxonomy_str)[-1]
-        #     taxonomy = record[0]
-        #     taxonomy = re.sub(r"|","\t",record[0])
-        #     # 重复的otu_id 添加序号
-        #     #print(taxonomy_str)
-        #     taxonomy_lst = parse_taxonomy(taxonomy_str)
-        #     new_record = list(map(lambda x:str(int(float(x)*10000)),record[1:]))
-        #     out.write(otu_id+"\t"+'\t'.join(new_record)+"\t"+r";".join(taxonomy_lst)+"\n")
+def GetAllFilePaths(pwd,wildcard='*'):
+    '''
+    获取目录下文件全路径，通配符检索特定文件名，返回列表
+    param: str  "pwd"
+    return:dirname pathlab_obj
+    return:list [ str ]
+    #https://zhuanlan.zhihu.com/p/36711862
+    #https://www.cnblogs.com/sigai/p/8074329.html
+    '''
+    files_lst = []
+    target_path=Path(pwd)
+    for child in target_path.rglob(wildcard):
+        if child.is_symlink():
+            pass
+        elif child.is_dir():
+            pass
+        elif child.is_file():
+            files_lst.append(child)
+    return files_lst
 
-        
+def main():
+    '''
+    选择最多的文件拷贝或者软链到相应的目录
+
+    fastq_files
+    sorted.fastq
+    final_clusters.tsv
+    '''
+    script_path =Path(__file__).resolve()
+    script_dir = Path(script_path).parent
+    #print(script_dir)
+    current_dir = Path.cwd()
+    txt_files = GetAllFilePaths(current_dir,'*_abundance.txt')
+
+    for txt_file in txt_files:
+        file_name = txt_file.name
+        print(txt_file)
+        # type_name = re.sub(r"_abundance.txt","",file_name)
+        out_file = txt_file.with_suffix('.xls')  # .txt
+        # dup_otu_id = {}
+        # count = 1
+        with open(txt_file,mode='rt',encoding='utf-8') as fh, open(out_file,mode='wt',encoding='utf-8') as out:
+            '''
+            kingdom,phylum,class,order,family,genus,species
+            k__Bacteria|p__Actinobacteria|c__Actinobacteria|o__Actinomycetales|f__Actinomycetaceae|g__Actinobaculum|s__Actinobaculum_sp_oral_taxon_183
+            '''
+            for line in fh:
+                record = re.split('\t',line.strip())
+                
+                if line.startswith('clade_name'):
+                    new_line = re.sub("\n","\tkingdom\tphylum\tclass\torder\tfamily\tgenus\tspecies\n",line) 
+                    out.write(new_line)
+                    continue
+
+                taxonomy_str = record[0]
+                taxonomy_record = re.split(r"\|",taxonomy_str)
+                taxonomy_lst = parse_taxonomy(taxonomy_str)
+                out.write(taxonomy_record[-1]+'\t'+"\t".join(record[1:])+"\t"+"\t".join(taxonomy_lst)+"\n")
+
+if __name__ == "__main__":
+    main()
