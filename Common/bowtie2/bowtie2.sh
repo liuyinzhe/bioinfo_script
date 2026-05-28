@@ -7,6 +7,7 @@ sample = sampleX
     -2 ${rawdata}/${sample}/${sample}.clean.2.fq.gz  \
     -S ${sample}_rRNA_bowtie.sam    \
     -p 4 \
-    --sensitive \
+    --very-sensitive-local \
+    -I 1 -X 1000 \
     --no-unal \
     --un-conc-gz ${sample}_unmap  2> ${sample}.summary
