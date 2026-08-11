@@ -14,3 +14,21 @@ funannotate predict \
 #   --strain "strain_name" \
 #   --transcript_evidence trinity.fasta \
 #   --pasa_gff pasa.gff3
+
+#################
+
+conda activate /data/users/liuyz/envs/funannotate
+export FUNANNOTATE_DB=/data/database/funannotate_db
+export GENEMARK_PATH=/data/software/GeneMark/gmes_linux_64_4
+funannotate predict \
+   -i masked.fa \
+   --species "Aspergillus westerdijkiae" \
+   --name  "AoFC_" \
+   --rna_bam /data/project/funannotate/04.predict/ABC/ABC.sorted.bam \
+   --out output
+#   --isolate "isolate_name" \
+#   --strain "strain_name" \
+#   --transcript_evidence trinity.fasta \
+#   --pasa_gff pasa.gff3
+
+conda deactivate
