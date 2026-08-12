@@ -16,4 +16,6 @@
 wget https://zenodo.org/record/14916843/files/db-light.tar.xz
 wget https://zenodo.org/record/14916843/files/db.tar.xz
 
+db_url = f"https://zenodo.org/record/{required_version['record']}/files/{'db-light' if args.type == 'light' else 'db'}.tar.xz"
+
 bakta_db install -i db.tar.xz
