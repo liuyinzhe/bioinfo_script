@@ -25,6 +25,10 @@ create_report test/data/variants/variants.vcf.gz \
 --title "IGV Variant Inspector" \
 --output example_vcf.html
 
+#    --title "IGV Variant Inspector" \
+#    --header test/example_header.html \
+#    --footer test/example_footer.html \
+    
 #https://github.com/igvteam/igv-reports/blob/master/test/example_footer.html
 # example
 # https://igvteam.github.io/igv-reports/
