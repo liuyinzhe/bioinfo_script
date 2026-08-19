@@ -4,8 +4,8 @@ gffread gencode.v19.annotation.gff3 -T -o gencode.v19.gtf
 # CDS to gene (Prot)
 gffread GRCh38.gtf -g GRCh38.fa -y GRCh38.protein.fa
 
-# CDS (DNA)
+# CDS (DNA) (无 UTR)
 gffread GRCh38.gtf -g GRCh38.fa -x GRCh38.cds.fa
 
-# transcripts (DNA)
+# transcripts (DNA) (含 UTR)
 gffread GRCh38.gtf -g GRCh38.fa -w GRCh38.transcripts.fa
