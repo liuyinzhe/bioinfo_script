@@ -21,6 +21,8 @@ python3 megablast_ann_tax.py
 
 cut -f 22 result.xls  |sort | uniq -c |sort -k1nr >summary
 
+#  -outfmt "6 qseqid saccver sseqid staxids sscinames pident length mismatch gapopen qlen qstart qend slen sstart send evalue bitscore qcovs qcovhsp qcovus stitle"
+
 # preparation
 #wget https://ftp.ncbi.nlm.nih.gov/pub/taxonomy/taxdmp.zip
 #wget https://ftp.ncbi.nlm.nih.gov/pub/taxonomy/accession2taxid/dead_nucl.accession2taxid.gz
