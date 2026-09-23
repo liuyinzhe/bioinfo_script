@@ -6,5 +6,6 @@ samtools view -F 4 sample.target.bam | awk '{print $1}' | sort | uniq > name.lis
 # gzip sample.1.fq
 # gzip sample.2.fq
 
-seqkit grep -f name.list sample.R1.fastq.gz -o sample.1.fq.gz
-seqkit grep -f name.list sample.R2.fastq.gz -o sample.2.fq.gz
+sample=$(basename  $PWD)
+seqkit grep -f r_id ${sample}.clean.1.fq.gz -o ${sample}.1.fq.gz
+seqkit grep -f r_id ${sample}.clean.2.fq.gz -o ${sample}.2.fq.gz
