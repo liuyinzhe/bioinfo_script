@@ -4,7 +4,7 @@
 
 本文整理三种获取 NCBI BLAST 预格式化数据库（`nt` / `nr` / `core_nt` …）的方式，
 说明**为什么"下载下来的文件前后版本不一致"会毁掉索引**，给出**可落地的检查方法**，
-并推荐用 [`blastdb_download.py`](../blastdb_download.py) 替代原来的手工流程（使用手册见 [`README.md`](../README.md)）。
+并推荐用 [`blastdb_download.py`](https://github.com/liuyinzhe/blastdb_download) 替代原来的手工流程（使用手册见 [`README.md`](../README.md)）。
 
 - 文中带「实测」标记的结论，都是在 2026-09-23 用真实 NCBI/GCP/S3 接口核验过的。
 - 带「原始笔记」的是已有记录的整理，已就地补充精确说明。
