@@ -4,7 +4,7 @@
 
 本文整理三种获取 NCBI BLAST 预格式化数据库（`nt` / `nr` / `core_nt` …）的方式，
 说明**为什么"下载下来的文件前后版本不一致"会毁掉索引**，给出**可落地的检查方法**，
-并推荐用 [`blastdb_download.py`](https://github.com/liuyinzhe/blastdb_download.git) 替代原来的手工流程。
+并推荐用 [`blastdb_download.py`](../blastdb_download.py) 替代原来的手工流程（使用手册见 [`README.md`](../README.md)）。
 
 - 文中带「实测」标记的结论，都是在 2026-09-23 用真实 NCBI/GCP/S3 接口核验过的。
 - 带「原始笔记」的是已有记录的整理，已就地补充精确说明。
@@ -24,6 +24,42 @@
 一句话：**慢一点没关系，版本混了才致命**——混版不会报错，只会让比对结果悄悄出错。
 
 ---
+
+## 0.5 数据源怎么选 + 最稳健的下载流程
+
+> 本工具**不需要** `update_blastdb.pl`，也不需要 `gsutil`/`gcloud`/`aws`/`curl`/`tar`
+> 这些外部程序——只依赖 Python 标准库（详见 [`README.md`](../README.md#第三方软件依赖哪些必须装)）。
+
+三个源都有全部库（含 `taxdb`），差别在新鲜度、校验强度和空间/CPU 开销（2026-09-24 实测）：
+
+| | NCBI HTTPS（`-s ncbi`） | GCP（`-s gcp`，默认） | AWS（`-s aws`） |
+|---|---|---|---|
+| 新鲜度 | **最新**（`nt` 发布 2026-09-15） | 快照 `2026-07-21-01-05-02`（滞后约 1–2 个月） | 同 GCP |
+| 目录性质 | **原地可变**（发布期逐个替换） | 不可变快照 + `latest-dir` 指针 | 同 GCP |
+| 布局 | `*.tar.gz` + 每文件 `.md5` | 裸索引文件，**无需解压** | 同 GCP |
+| 逐文件校验 | ✓ `.md5` 边车 | ✓ 对象 `md5Hash` | ⚠ 大对象 ETag 是分片哈希，**不是 md5** |
+| 下载量 / 峰值磁盘（`nt`） | 932 GiB / 载荷 1.07 TiB + 单卷 0.73–4.78 GiB | ≈1.0 TiB / ≈1.0 TiB（无解压） | 同 GCP |
+| 主要风险 | 发布窗口内可能前后不一致（工具会重试或中止） | 数据滞后；快照只保留约 3 个（≈1 个月） | 校验强度低；快照保留期同 |
+
+选择建议：**只求稳 → 默认 `-s gcp`；要最新 → `-s ncbi`（一致性协议专为可变目录设计）；
+`-s aws` 仅在通道/凭证有优势且能接受校验降级时用**。想两者兼得：先 `-s gcp` 建不可变基线，之后按需
+`-s ncbi` 追新（未变动文件会硬链接复用）。
+
+最稳健的下载流程（完整说明见 [`README.md`](../README.md#最稳健的下载流程推荐照抄)）：
+
+```bash
+ROOT=/data/public/databases
+blastdb_download.py -r "$ROOT" doctor                      # 空间/配额/工具自检
+blastdb_download.py -r "$ROOT" -s gcp --dry-run download nt taxdb   # 空跑看计划
+nohup blastdb_download.py -r "$ROOT" -s gcp -j 8 --connections 4 \
+      --min-free 50G --file-retries 3 --keep-snapshots 2 \
+      --log-file /var/log/blastdb/nt.log download nt taxdb &
+blastdb_download.py -r "$ROOT" verify                       # 完成后全量复核
+export BLASTDB="$ROOT/current"
+```
+
+> 注意云快照**只保留约 3 个（≈1 个月）**。1 TiB 的 `nt` 若跨过保留期，后续文件会 404；
+> 工具会明确报错，重跑会落到新快照并抢救仍一致的卷。
 
 ## 1. 正规下载方式：`update_blastdb.pl`
 
@@ -158,7 +194,8 @@ u32 version(5) | u32 dbtype(0=核酸,1=蛋白) | u32 卷序号 | 标题 | 卷基
 | `nr.000.pin` / `nr.001.pin` | 0 / 1 | 全部 `Jul 14, 2026 12:42 AM` |
 
 并且 `nt.njs` 里的 `"last-updated": "2026-07-19T03:10:00"` 与之严格一致；
-`<db>-nucl-metadata.json` 里的 `last-updated` 也一致（日期级）。
+`<db>-nucl-metadata.json` 里的 `last-updated` 也一致（日期级）——但那是抽查的库，`nt` 在
+`2026-07-21-01-05-02` 快照里恰好相反（那份 json 落后一天），见 §4.4。
 
 > **推论**：两个卷属于同一次构建 ⇔ 它们的内嵌构建时间戳相同。
 > 这个判断完全在本地完成，不需要联网，也不依赖任何一方元数据的自述。
@@ -183,6 +220,11 @@ XR_010627017.1 99541112 58331 N/A
 
 补充：
 
+- **`taxdb` 从哪来（三个源都有，不需要为了它换源）**：GCP/AWS 把 `taxdb` 作为清单里的一等库
+  （3 个裸对象，带 `md5Hash`）；NCBI 单独发布 `taxdb.tar.gz`（实测 62.34 MiB 压缩 / 293.9 MiB 解压，
+  2026-09-16 更新），并且**实测单卷库的归档里也自带同一份载荷**（多卷库是否自带无官方说明）。
+  本工具**默认会自动附加 `taxdb`（源不限）**，`--no-taxdb` 可关；因此
+  `-s ncbi` 与 taxdb 无关——它是为了取最新数据。
 - `%S` 为 `N/A` 说明 **BLASTDB 目录里没有 `taxdb`**（需要 `taxdb.btd` / `taxdb.bti` /
   `taxonomy4blast.sqlite3` 与数据库在同一目录）。`%a`/`%o`/`%T` 仍能读出来，说明数据本身没坏。
 - 这类抽查**只能查你恰好抽到的序列**；它能暴露"某条序列的 OID/物种对不上"，
@@ -261,9 +303,10 @@ nt  (/data/public/databases/NT)
 ```
 
 它同时能发现：缺卷（卷序号不连续）、文件名卷号与内嵌卷号不符、缺少/多余载荷文件、
-载荷文件被截断、载荷与其 metadata 来自不同构建。
+载荷文件被截断、同一构建内载荷与其 metadata 不一致。（若 metadata 自称的构建日期与卷指纹
+不同，按 §4.4 只作告警——上游可能发的是旧副本。）
 
-### 4.4 完整性交叉检查：`<db>-nucl-metadata.json`（实测可用）
+### 4.4 完整性交叉检查：`<db>-nucl-metadata.json`（同构建时可用；上游可能发旧副本）
 
 镜像里与数据并排放着 `<db>-nucl-metadata.json`，其中 `files` 列表、`number-of-volumes`、
 `bytes-total` 三项与磁盘上的载荷**完全吻合**（实测 `16S_ribosomal_RNA`：
@@ -277,15 +320,37 @@ nt  (/data/public/databases/NT)
 jq -r '.files[], ."bytes-total", ."last-updated"' 16S_ribosomal_RNA-nucl-metadata.json
 ```
 
-`blastdb_download.py` 的 `inspect` / `verify` 已经内置了这三项检查（缺文件、多文件、
-字节数不符、时间戳与卷指纹不一致都会报错）。实测四种破坏方式都能被抓出来：
+**但它的汇总字段可能与它自己带来的载荷对不上**——它不是快照的权威，载荷自身的证据才是。
+实测 `2026-07-21-01-05-02` 快照（2026-09-28 复核；`nt` 共 345 卷、1.07 TiB）：
+
+| 来源 | `last-updated` | `bytes-total` | 文件名单 |
+|---|---|---|---|
+| 清单 `blastdb-metadata-1-1.json` 的 `nt` 汇总字段 | 2026-07-20T00:00:00 | 1063128812728 | 3112 |
+| 快照内 `nt-nucl-metadata.json` | 2026-07-20T00:00:00 | 1063128812728 | 3112（与清单逐名一致） |
+| 载荷 `nt.njs` | 2026-07-19T03:10:00 | 1074151309400 | 3111（不含自身） |
+| 345 个卷的 `.nin` 内嵌指纹 | `Jul 19, 2026  3:10 AM` | — | — |
+| 磁盘载荷实测（逐文件 md5 全部通过） | — | 1074151365765 | 3112 |
+
+**文件名单三方一致**（`3112 = 载荷 + nt.njs`），差的只有汇总字段：日期一天、字节约 10.2 GB。
+即：**载荷自洽，异口的是汇总字段**——不要据此判断“我的数据是旧版”，也不要拿 `bytes-total` 判完整性。
+因此 1.4.3 起 `blastdb_download.py` 的判别是**先看它自称的构建日期是否与卷内嵌指纹一致**：
+
+- **一致**：它才是权威，`files` / `bytes-total` / `number-of-volumes` 不符一律**拒绝安装**（下表前四行）；
+- **不一致**：把它的声明降级为**告警**（日志里写 `stale, ignored`），安装照常进行；集合完整性改由
+  卷号 `0..N-1` 连续性、逐文件 md5 与 `.njs` 保证——真缺一卷仍会被拦住。
+
+手工复核时请照这个顺序：先 `blastdb_download.py inspect <db>`（卷内嵌指纹 + 磁盘实际字节数），
+再拿 json 去比。注意 `blastdbcmd -db <db> -info` 报的库大小取自那份 json，可能是旧的。
+
+`blastdb_download.py` 的 `inspect` / `verify` 已经内置了上述检查。实测四种破坏方式都能被抓出来：
 
 | 破坏方式 | `inspect` 的判定 |
 |---|---|
-| 把 `.nin` 换成另一版本 | `last-updated` 与卷指纹日期不一致 → FAILED（并顺便报出字节数不符） |
+| 把某个卷的 `.nin` 换成另一版本 | 卷间内嵌时间戳不一致（`MIXED BUILD TIMESTAMPS`）→ FAILED |
 | 删掉 `.nsq` | `lists 1 file(s) that are absent: ...` → FAILED |
 | 把 `.nsq` 截断一半 | `bytes-total 18427887 != the 13356971 bytes of payload on disk` → FAILED |
 | 多放一个杂文件 | `does not list 1 file(s) that are present: ...` → FAILED |
+| 上游把旧副本塞进快照（`nt` 实测） | `describes a different build ... (stale, ignored)` → 告警，verdict 仍 OK |
 
 ### 4.5 推荐的检查组合
 
@@ -327,7 +392,7 @@ blastn -db nt -query q.fa -out out.txt
 | 卷之间混版（3.1） | 下载前记下 `revkey`，下载后再读一次；变了就丢弃重试或中止（**绝不安装**）。安装前再校验所有卷的内嵌构建时间戳一致、卷序号 `0..N-1` 连续 |
 | 选错云端快照（3.2） | 只用 `latest-dir`，并要求目标快照的 manifest 存在、清单里每个文件都在快照里 |
 | 单文件损坏 | 权威 md5：NCBI 用 `.md5` 边车，GCS 用 `md5Hash`；aria2c 模式下用 `checksum=md5=` 在下载内校验，失败文件被删除 |
-| 缺文件/多文件/截断（4.4） | `<db>-nucl-metadata.json` 的 `files` 与 `bytes-total` 交叉校验 |
+| 缺文件/多文件/截断（4.4） | `<db>-nucl-metadata.json` 的 `files` 与 `bytes-total` 交叉校验（**仅当它自称的构建日期与卷指纹一致**；不一致则降级为告警，改由卷号连续性与逐文件 md5 兜底） |
 | 更新时读到半套数据 | 新快照目录 + **原子替换 `current` 软链接**；读端永不见半更新，回滚是一次软链接切换 |
 | 中断后重头再来 | 三层续跑：分片状态 → staging 复用 → 快照硬链接；staging 按 `revkey` 隔离，旧断点不可能污染新版本 |
 | 无法判断老目录是否有问题 | `inspect` 直接读 `.nin` 指纹，不用 BLAST、不用状态文件 |
@@ -372,6 +437,16 @@ export BLASTDB=/data/public/databases/current
 | 云端指针 | `<源>/latest-dir` | 指向当前权威快照目录；**唯一可信的目录选择依据** |
 
 ---
+
+## 6.5 附：本工具自身的版本与更新日志
+
+工具内部版本用 `blastdb_download.py --version` 查看；完整更新日志见
+[`CHANGELOG.md`](../CHANGELOG.md)。与本文相关的两次修复值得记住：
+
+- **1.1.0 修**：`taxdb` 曾被误报 "the snapshot is incomplete"——因为按库名前缀列对象会漏掉
+  `taxonomy4blast.sqlite3`（它不以 `taxdb` 开头）。现在清单是权威，前缀只是快路径。
+- **1.2.0 修**：没有官方 md5/size 的文件不再"仅凭存在"被当作已验证；`Ctrl-C`/中止会立即停止，
+  不再把队列里已排队的几百个分片跑完。
 
 ## 7. 附：环境与版本
 
