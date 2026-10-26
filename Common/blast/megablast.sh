@@ -21,6 +21,8 @@ python3 megablast_ann_tax.py
 
 cut -f 22 result.xls  |sort | uniq -c |sort -k1nr >summary
 
+# export BLASTDB=/data/public/databases/NT/current/
+#  sscinames 需要下载  ftp://ftp.ncbi.nlm.nih.gov/blast/db/taxdb.tar.gz, 正常-db 只对应名字，不对应 $BLASTDB 指定解压后的数据库路径
 #  -outfmt "6 qseqid saccver sseqid staxids sscinames pident length mismatch gapopen qlen qstart qend slen sstart send evalue bitscore qcovs qcovhsp qcovus stitle"
 
 # preparation
