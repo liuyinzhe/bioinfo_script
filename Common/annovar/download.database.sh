@@ -1,3 +1,12 @@
+example
+####
+cd /data/public/software/annovar/
+
+for db in gnomad211_genome hg38_gnomad41_genome; do
+    echo "=== 下载 $db ==="
+    perl annotate_variation.pl -buildver hg38 -downdb -webfrom annovar $db humandb/
+done
+####
 # hg19
 
 ./annotate_variation.pl -downdb -webfrom annovar knownGene --buildver hg19 ./humandb 
