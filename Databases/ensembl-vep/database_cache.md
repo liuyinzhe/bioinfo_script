@@ -19,14 +19,19 @@ https://ftp.ensembl.org/pub/current/fasta/felis_catus/dna/Felis_catus.F.catus_Fc
 vep_install -l -c /data/public/databases/vep_db
 Do you want to continue installing the API (y/n)? n
 Do you want to install any cache files (y/n)?y
-选择安装，canis_lupus_familiarisgsd/felis_catus
+# 选择安装：
+#64 : canis_lupus_familiarisgsd_vep_116_UU_Cfam_GSD_1.0.tar.gz (110 MB)
+#156 : felis_catus_vep_116_F.catus_Fca126_mat1.0.tar.gz (721 MB)
+
 
 # download fasta file
 vep_install -l -c /data/public/databases/vep_db
 Do you want to continue installing the API (y/n)? n
 Do you want to install any cache files (y/n)?n
 Do you want to install any FASTA files (y/n)?y
-选择安装，canis_lupus_familiarisgsd/felis_catus
+# 选择安装：
+#50 : canis_lupus_familiarisgsd
+#111 : felis_catus
 ```
 
 ### Fasta 文件处理
